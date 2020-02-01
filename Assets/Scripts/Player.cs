@@ -128,6 +128,10 @@ public class Player : MonoBehaviour
         if (isClimbing) {
             isClimbing = false;
             rigidbody2D.gravityScale = gravityScaleBackup;
+            
+            Vector2 newVelocity = rigidbody2D.velocity;
+            newVelocity.y = 0;
+            rigidbody2D.velocity = newVelocity;
         }
     }
 }
