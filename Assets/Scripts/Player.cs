@@ -59,7 +59,9 @@ public class Player : MonoBehaviour
     void Update()
     {
         move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * velocity;
-        animator.SetFloat("Running Velocity", Mathf.Abs(move.x));
+
+        animator.SetFloat("Running Velocity", Mathf.Abs(rigidbody2D.velocity.x));
+        animator.SetFloat("Climbing Velocity", Mathf.Abs(rigidbody2D.velocity.y));
     }
 
     void FixedUpdate()
@@ -104,6 +106,7 @@ public class Player : MonoBehaviour
         );
 
         if (
+            !isClimbing &&
             (move.x > 0 && orientation != RIGHT) ||
             (move.x < 0 && orientation != LEFT)
         ) {
@@ -138,6 +141,7 @@ public class Player : MonoBehaviour
             isClimbing = true;
             gravityScaleBackup = rigidbody2D.gravityScale;
             rigidbody2D.gravityScale = 0;
+            animator.SetBool("Is Climbing", true);
         }
     }
 
@@ -146,6 +150,7 @@ public class Player : MonoBehaviour
         if (isClimbing) {
             isClimbing = false;
             rigidbody2D.gravityScale = gravityScaleBackup;
+            animator.SetBool("Is Climbing", false);
             
             Vector2 newVelocity = rigidbody2D.velocity;
             newVelocity.y = 0;
