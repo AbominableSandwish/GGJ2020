@@ -10,11 +10,15 @@ public class Player : MonoBehaviour
 
     [SerializeField] private int maxHp = 10;
     [SerializeField] private float velocity = 20;
+    [SerializeField] private LayerMask groundLayer;
 
     private Vector2 move = Vector2.zero;
-    private bool climbing = false;
+    private bool isClimbing = false;
+    private GameObject ladder = null;
     private bool orientation = RIGHT;
     private Vector3 dampVelocity = Vector3.zero;
+    private float gravityScaleBackup;
+
     private Animator animator;
     private Rigidbody2D rigidbody2D;
 
@@ -22,11 +26,32 @@ public class Player : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
+        rigidbody2D = GetComponent<Rigidbody2D>();
+
+        gravityScaleBackup = rigidbody2D.gravityScale;
     }
 
     void Awake()
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        Debug.Log(IsGrounded() ? "Grounded" : "Not grounded");
+        
+        if (other.gameObject.tag == "Ladder") {
+            ladder = other.gameObject;
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        Debug.Log(IsGrounded() ? "Grounded" : "Not grounded");
+        
+        if (other.gameObject.tag == "Ladder") {
+            ladder = null;
+        }
     }
 
     // Update is called once per frame
@@ -40,8 +65,25 @@ public class Player : MonoBehaviour
     {
         Vector2 fixedMove = move * Time.fixedDeltaTime;
 
-        Vector2 targetVelocity = new Vector2(fixedMove.x * 10f, rigidbody2D.velocity.y);
-        rigidbody2D.velocity = Vector3.SmoothDamp(rigidbody2D.velocity, targetVelocity, ref dampVelocity, MOVEMENT_SMOTHING);
+        if (ladder == null) {
+            stopClimbing();
+        } else if (move.y != 0) {
+            startClimbing();
+        }
+
+        float targetVelocityX = fixedMove.x * 10f;
+        float targetVelocityY = rigidbody2D.velocity.y;
+
+        if (isClimbing) {
+            targetVelocityY = fixedMove.y * 10f;
+        }
+
+        rigidbody2D.velocity = Vector3.SmoothDamp(
+            rigidbody2D.velocity,
+            new Vector2(targetVelocityX, targetVelocityY),
+            ref dampVelocity,
+            MOVEMENT_SMOTHING
+        );
 
         if (
             (move.x > 0 && orientation != RIGHT) ||
@@ -59,5 +101,33 @@ public class Player : MonoBehaviour
 		Vector3 theScale = transform.localScale;
 		theScale.x *= -1;
 		transform.localScale = theScale;
+    }
+
+    private bool IsGrounded()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 0.78f, groundLayer);
+
+        if (hit.collider != null) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    private void startClimbing()
+    {
+        if (!isClimbing) {
+            isClimbing = true;
+            gravityScaleBackup = rigidbody2D.gravityScale;
+            rigidbody2D.gravityScale = 0;
+        }
+    }
+
+    private void stopClimbing()
+    {
+        if (isClimbing) {
+            isClimbing = false;
+            rigidbody2D.gravityScale = gravityScaleBackup;
+        }
     }
 }
