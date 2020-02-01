@@ -6,6 +6,9 @@ public class Player : MonoBehaviour
 {
     private const bool RIGHT = true;
     private const bool LEFT = false;
+    private const int NOTHING = 0;
+    private const int GROUND = 1;
+    private const int LADDER = 2;
     private const float MOVEMENT_SMOTHING = 0.05f;
     private const float MAX_HORIZONTAL_LADDER_OFFSET = 0.1f;
 
@@ -39,8 +42,6 @@ public class Player : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log(IsGrounded() ? "Grounded" : "Not grounded");
-        
         if (other.gameObject.tag == "Ladder") {
             ladder = other.gameObject;
         }
@@ -48,9 +49,8 @@ public class Player : MonoBehaviour
 
     void OnTriggerExit2D(Collider2D other)
     {
-        Debug.Log(IsGrounded() ? "Grounded" : "Not grounded");
-        
         if (other.gameObject.tag == "Ladder") {
+            ladder.GetComponent<Ladder>().ActivateTopPlatform(true);
             ladder = null;
         }
     }
@@ -67,14 +67,23 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         Vector2 fixedMove = move * Time.fixedDeltaTime;
+        int standingOn = IsStandingOn();
 
-        if (
-            ladder == null ||
-            (move.y <= 0 && IsGrounded())
-        ) {
-            stopClimbing();
-        } else if (move.y != 0) {
-            startClimbing();
+        if (ladder != null) {
+            if (fixedMove.y < 0) {
+                if (standingOn == GROUND) {
+                    Debug.Log("Stop Climbing");
+                    StopClimbing();
+                } else if (standingOn == LADDER) {
+                    ladder.GetComponent<Ladder>().ActivateTopPlatform(false);
+                    StartClimbing();
+                }
+            } else if (fixedMove.y > 0 && standingOn != LADDER) {
+                ladder.GetComponent<Ladder>().ActivateTopPlatform(true);
+                StartClimbing();
+            } 
+        } else {
+            StopClimbing();
         }
 
         float targetVelocityX = fixedMove.x * 10f;
@@ -124,18 +133,29 @@ public class Player : MonoBehaviour
 		transform.localScale = theScale;
     }
 
-    private bool IsGrounded()
+    private int IsStandingOn()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 0.78f, groundLayer);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 0.85f, groundLayer);
 
         if (hit.collider != null) {
+            return hit.collider.tag == "Ladder Top Platform" ? LADDER : GROUND;
+        }
+        
+        return NOTHING;
+    }
+
+    private bool IsGrounded()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 0.8f, groundLayer);
+
+        if (hit.collider != null && hit.distance > 0.7f) {
             return true;
         }
         
         return false;
     }
 
-    private void startClimbing()
+    private void StartClimbing()
     {
         if (!isClimbing) {
             isClimbing = true;
@@ -145,7 +165,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void stopClimbing()
+    private void StopClimbing()
     {
         if (isClimbing) {
             isClimbing = false;
