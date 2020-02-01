@@ -25,6 +25,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float velocity = 20;
     [SerializeField] private LayerMask groundLayer;
 
+    private bool hasBubbleSuit = false;
+    private bool isUsingExtinguisher = false;
     private Vector2 move = Vector2.zero;
     private bool isClimbing = false;
     private GameObject ladder = null;
@@ -34,6 +36,7 @@ public class Player : MonoBehaviour
 
     private Animator animator;
     private Rigidbody2D rigidbody2D;
+    private ParticleSystem extinguisherParticles;
 
     public RoomSystem CurrentRoom;
 
@@ -49,6 +52,7 @@ public class Player : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         rigidbody2D = GetComponent<Rigidbody2D>();
+        extinguisherParticles = transform.Find("Extinguisher Particles").gameObject.GetComponent<ParticleSystem>();
 
         gravityScaleBackup = rigidbody2D.gravityScale;
     }
@@ -89,7 +93,16 @@ public class Player : MonoBehaviour
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.B)) {
+            EquipBubbleSuit(!hasBubbleSuit);
+        }
 
+        if (Input.GetKeyDown(KeyCode.X) && !isClimbing) {
+            UseExtinguisher(true);
+        }
+        if (Input.GetKeyUp(KeyCode.X)) {
+            UseExtinguisher(false);
+        }
     }
 
     void FixedUpdate()
@@ -113,7 +126,7 @@ public class Player : MonoBehaviour
             StopClimbing();
         }
 
-        float targetVelocityX = fixedMove.x * 10f;
+        float targetVelocityX = isUsingExtinguisher ? 0 : fixedMove.x * 10f;
         float targetVelocityY = rigidbody2D.velocity.y;
 
         if (isClimbing) {
@@ -208,5 +221,28 @@ public class Player : MonoBehaviour
     public Object GetObject()
     {
         return inHand;
+    }
+
+    private void EquipBubbleSuit(bool equip)
+    {
+        if (equip != hasBubbleSuit) {
+            hasBubbleSuit = equip;
+            transform.Find("Bubble Sprite").gameObject.SetActive(equip);
+        }
+    }
+
+    private void UseExtinguisher(bool use)
+    {
+        if (use != isUsingExtinguisher) {
+
+            if (use) {
+                extinguisherParticles.Play();
+            } else {
+                extinguisherParticles.Stop();
+            }
+
+            animator.SetBool("Is Using Extinguisher", use);
+            isUsingExtinguisher = use;
+        }
     }
 }
