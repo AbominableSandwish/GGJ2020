@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class SpawnerPlanet : MonoBehaviour
 {
@@ -8,6 +10,8 @@ public class SpawnerPlanet : MonoBehaviour
 
     private const int MAX_PLANET = 5;
     private int countPlanet = 0;
+    private float timeToSpawn = 2.5f;
+    private float counterTime=0.0f ;
 
     [SerializeField] List<GameObject> Planets;
     // Start is called before the first frame update
@@ -21,13 +25,23 @@ public class SpawnerPlanet : MonoBehaviour
     {
         if (countPlanet != MAX_PLANET)
         {
-            int rdm = Random.Range(0, 101);
-            if (rdm >= 100)
+            counterTime += Time.deltaTime;
+            if (counterTime >= timeToSpawn)
             {
-                Vector3 new_position = new Vector3(transform.position.x + Random.Range(0, Size.x),
-                                           transform.position.y + Random.Range(0, Size.y)) - (Vector3) Size / 2;
-                Instantiate(Planets[Random.Range(0, Planets.Count)], new_position, Quaternion.identity, transform);
-                countPlanet++;
+                int rdm = (int) DateTime.Now.Ticks;
+                Random.InitState(rdm);
+
+                if (Random.value * 100 <= 20)
+                {
+                    Vector3 new_position = new Vector3(transform.position.x + Random.Range(0, Size.x),
+                                               transform.position.y + Random.value * Size.y) - (Vector3) Size / 2;
+                    Instantiate(Planets[(int) (Random.value * Planets.Count)], new_position, Quaternion.identity,
+                        transform);
+                    countPlanet++;
+
+                }
+                counterTime = 0.0f;
+
             }
         }
     }

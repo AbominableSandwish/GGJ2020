@@ -15,13 +15,15 @@ public class DoorSystem : MonoBehaviour
     private Vector3 NextPositionTop;
     private Vector3 NextPositionBot;
 
-
     private State door = State.WAIT;
 
     [SerializeField] private bool isOpen = false;
-    private Transform DoorTop;
+    [SerializeField] private bool withoutOxygen = false;
 
+    private Transform DoorTop;
     private Transform DoorBot;
+
+    [SerializeField] private List<RoomSystem> Rooms;
 
     // Start is called before the first frame update
     void Start()
@@ -103,6 +105,35 @@ public class DoorSystem : MonoBehaviour
         if (collision.gameObject.tag == "Player")
         {
             SetDoor();
+        }
+    }
+
+    public void SetPressurize(bool set)
+    {
+        withoutOxygen = set;
+        if (withoutOxygen)
+        {
+            this.DoorTop.gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
+            this.DoorBot.gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
+        }
+        else
+        {
+            this.DoorTop.gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+            this.DoorBot.gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+        }
+    }
+
+    public void BurnRoom()
+    {
+        if (Random.Range(0, 100) <= 25)
+        {
+            foreach (var room in Rooms)
+            {
+                if (!room.onFire)
+                {
+                    room.LightRoom(true);
+                }
+            }
         }
     }
 }
