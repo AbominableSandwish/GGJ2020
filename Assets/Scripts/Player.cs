@@ -16,6 +16,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float velocity = 20;
     [SerializeField] private LayerMask groundLayer;
 
+    private bool hasBubbleSuit = false;
     private Vector2 move = Vector2.zero;
     private bool isClimbing = false;
     private GameObject ladder = null;
@@ -62,6 +63,10 @@ public class Player : MonoBehaviour
 
         animator.SetFloat("Running Velocity", Mathf.Abs(rigidbody2D.velocity.x));
         animator.SetFloat("Climbing Velocity", Mathf.Abs(rigidbody2D.velocity.y));
+
+        if (Input.GetKeyDown(KeyCode.B)) {
+            EquipBubbleSuit(!hasBubbleSuit);
+        }
     }
 
     void FixedUpdate()
@@ -174,6 +179,14 @@ public class Player : MonoBehaviour
             Vector2 newVelocity = rigidbody2D.velocity;
             newVelocity.y = 0;
             rigidbody2D.velocity = newVelocity;
+        }
+    }
+
+    private void EquipBubbleSuit(bool equip)
+    {
+        if (equip != hasBubbleSuit) {
+            hasBubbleSuit = equip;
+            transform.Find("Bubble Sprite").gameObject.SetActive(equip);
         }
     }
 }
