@@ -11,6 +11,8 @@ public class RoomSystem : MonoBehaviour
     private float timeToBurn = 1.5f;
     private float counterTime = 0.0f;
 
+    private int HealtRoom = 45;
+
     float LevelFire = 0.0f;
     void Start()
     {
@@ -18,7 +20,7 @@ public class RoomSystem : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (onFire)
         {
@@ -29,7 +31,17 @@ public class RoomSystem : MonoBehaviour
                 LevelFire += 0.2f;
                 if (LevelFire > 1.5f)
                 {
-                    GetComponent<SpriteRenderer>().color = Color.red;
+                    if(HealtRoom != 0)
+                        HealtRoom -= 3;
+                    if (HealtRoom <= 15)
+                    {
+                        GetComponent<SpriteRenderer>().color = new Color(0.5f, 0, 0, 1);
+                    }
+                    else
+                    {
+                        GetComponent<SpriteRenderer>().color = Color.red;
+                    }
+
                     foreach (var door in doors)
                     {
                         door.BurnRoom();
@@ -74,5 +86,10 @@ public class RoomSystem : MonoBehaviour
     {
         LightRoom(false);
         LevelFire = 0.0f;
+    }
+
+    public int GetHealt()
+    {
+        return HealtRoom;
     }
 }

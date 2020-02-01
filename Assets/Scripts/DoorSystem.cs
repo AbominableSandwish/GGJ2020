@@ -41,7 +41,7 @@ public class DoorSystem : MonoBehaviour
         OpenPositionBot = this.DoorBot.localPosition + new Vector3(0.0f, -0.25f);
     }
 
-    void Update()
+    void FixedUpdate()
     {
         switch (door)
         {
@@ -51,10 +51,10 @@ public class DoorSystem : MonoBehaviour
                     Debug.Log("Door Opening");
                     this.DoorTop.localPosition += Vector3.up * Time.deltaTime;
                     this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size =
-                        this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, -0.01f);
+                        this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, -0.025f);
                     this.DoorBot.localPosition += Vector3.down * Time.deltaTime;
                     this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size =
-                        this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, -0.01f);
+                        this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, -0.025f);
                 }
                 else
                 {
@@ -75,10 +75,10 @@ public class DoorSystem : MonoBehaviour
                     Debug.Log("Door Closing");
                     this.DoorTop.localPosition -= Vector3.up * Time.deltaTime;
                     this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size =
-                        this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, 0.01f);
+                        this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, 0.025f);
                     this.DoorBot.localPosition -= Vector3.down * Time.deltaTime;
                     this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size =
-                        this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, +0.01f);
+                        this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, +0.025f);
                 }
                 else
                 {

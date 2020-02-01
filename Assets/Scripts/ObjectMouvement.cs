@@ -7,20 +7,36 @@ using Random = UnityEngine.Random;
 public class ObjectMouvement : MonoBehaviour
 {
     private float velocity = 0.3f;
-    public int LevelDistance = 1;
+    public float LevelDistance = 1;
     // Start is called before the first frame update
     void Start()
     {
         Random.InitState((int)DateTime.Now.Ticks);
         int rdmResult = (int) (Random.value * 75);
-        if(rdmResult <= 10)
-            LevelDistance = 1;
-        if (rdmResult > 10 && LevelDistance <= 25)
+        if (rdmResult <= 10)
+        {
             LevelDistance = 2;
+            GetComponent<SpriteRenderer>().sortingOrder = -5;
+        }
+
+        if (rdmResult > 10 && LevelDistance <= 25)
+        {
+            LevelDistance = 1;
+            GetComponent<SpriteRenderer>().sortingOrder = -4;
+        }
+
         if (rdmResult > 25 && LevelDistance <= 50)
-            LevelDistance = 3;
+        {
+            LevelDistance = 0.5f;
+            GetComponent<SpriteRenderer>().sortingOrder = -3;
+        }
+
         if (rdmResult > 50 && LevelDistance <= 75)
-            LevelDistance = 4;
+        {
+            LevelDistance = 0.25f;
+            GetComponent<SpriteRenderer>().sortingOrder = -2;
+        }
+
         transform.localScale /= LevelDistance;
 
     }
