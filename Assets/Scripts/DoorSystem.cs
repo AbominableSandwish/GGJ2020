@@ -12,8 +12,11 @@ public class DoorSystem : MonoBehaviour
         WAIT
     }
 
-    private Vector3 NextPositionTop;
-    private Vector3 NextPositionBot;
+    private Vector3 OpenPositionTop;
+    private Vector3 OpenPositionBot;
+
+    private Vector3 ClosePositionTop;
+    private Vector3 ClosePositionBot;
 
     private State door = State.WAIT;
 
@@ -30,6 +33,12 @@ public class DoorSystem : MonoBehaviour
     {
         this.DoorTop = GetComponentsInChildren<Transform>()[1];
         this.DoorBot = GetComponentsInChildren<Transform>()[2];
+
+        ClosePositionTop = this.DoorTop.localPosition;
+        ClosePositionBot = this.DoorBot.localPosition;
+
+        OpenPositionTop = this.DoorTop.localPosition + new Vector3(0.0f, 0.25f);
+        OpenPositionBot = this.DoorBot.localPosition + new Vector3(0.0f, -0.25f);
     }
 
     void Update()
@@ -37,7 +46,7 @@ public class DoorSystem : MonoBehaviour
         switch (door)
         {
             case State.OPEN:
-                if (this.DoorTop.localPosition.y <= NextPositionTop.y && this.DoorBot.localPosition.y >= NextPositionBot.y)
+                if (this.DoorTop.localPosition.y <= OpenPositionTop.y && this.DoorBot.localPosition.y >= OpenPositionBot.y)
                 {
                     Debug.Log("Door Opening");
                     this.DoorTop.localPosition += Vector3.up * Time.deltaTime;
@@ -50,14 +59,18 @@ public class DoorSystem : MonoBehaviour
                 else
                 {
                     Debug.Log("Door Opened");
-                    this.DoorTop.localPosition = NextPositionTop;
-                    this.DoorBot.localPosition = NextPositionBot;
+                    this.DoorTop.localPosition = OpenPositionTop;
+                    this.DoorBot.localPosition = OpenPositionBot;
                     door = State.WAIT;
+                    if (isOpen != true)
+                    {
+                        SetDoor();
+                    }
                 }
 
                 break;
             case State.CLOSE:
-                if (this.DoorTop.localPosition.y >= NextPositionTop.y && this.DoorBot.localPosition.y <= NextPositionBot.y)
+                if (this.DoorTop.localPosition.y >= ClosePositionTop.y && this.DoorBot.localPosition.y <= ClosePositionBot.y)
                 {
                     Debug.Log("Door Closing");
                     this.DoorTop.localPosition -= Vector3.up * Time.deltaTime;
@@ -70,8 +83,9 @@ public class DoorSystem : MonoBehaviour
                 else
                 {
                     Debug.Log("Door Closed");
-                    this.DoorTop.localPosition = NextPositionTop;
-                    this.DoorBot.localPosition = NextPositionBot;
+                    this.DoorTop.localPosition = ClosePositionTop;
+                    this.DoorBot.localPosition = ClosePositionBot;
+
                     door = State.WAIT;
                 }
 
@@ -82,27 +96,43 @@ public class DoorSystem : MonoBehaviour
     // Update is called once per frame
     public void SetDoor()
     {
-        if (door == State.WAIT)
-        {
             isOpen = !isOpen;
             if (isOpen)
             {
-                NextPositionTop = this.DoorTop.localPosition + new Vector3(0.0f, 0.25f);
-                NextPositionBot = this.DoorBot.localPosition + new Vector3(0.0f, -0.25f);
-                door = State.OPEN;
+                if (!withoutOxygen)
+                {
+                    GetComponent<BoxCollider2D>().isTrigger = true;
+                    door = State.OPEN;
+            }
+                else
+                {
+                    if (GameObject.Find("Player").GetComponent<Player>().GetObject() == Player.Object.SPACESUIT)
+                    {
+                        GetComponent<BoxCollider2D>().isTrigger = true;
+                        door = State.OPEN;
+                    } 
+                }
             }
             else
             {
-                NextPositionTop = this.DoorTop.localPosition - new Vector3(0.0f, 0.25f);
-                NextPositionBot = this.DoorBot.localPosition - new Vector3(0.0f, -0.25f);
+                GetComponent<BoxCollider2D>().isTrigger = false;
                 door = State.CLOSE;
             }
+    }
+
+
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            SetDoor();
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    void OnTriggerExit2D(Collider2D other)
     {
-        if (collision.gameObject.tag == "Player")
+        if (other.gameObject.tag == "Player")
         {
             SetDoor();
         }

@@ -4,6 +4,15 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public enum Object
+    {
+        SPACESUIT,
+        EXTINGUISHER,
+        EMPTY,
+    }
+
+    [SerializeField] private Object inHand = Object.EMPTY;
+
     private const bool RIGHT = true;
     private const bool LEFT = false;
     private const int NOTHING = 0;
@@ -25,6 +34,15 @@ public class Player : MonoBehaviour
 
     private Animator animator;
     private Rigidbody2D rigidbody2D;
+
+    public RoomSystem CurrentRoom;
+
+    public void SetRoom(RoomSystem room)
+    {
+        CurrentRoom = room;
+    }
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -62,6 +80,16 @@ public class Player : MonoBehaviour
 
         animator.SetFloat("Running Velocity", Mathf.Abs(rigidbody2D.velocity.x));
         animator.SetFloat("Climbing Velocity", Mathf.Abs(rigidbody2D.velocity.y));
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (inHand == Object.EXTINGUISHER)
+            {
+                CurrentRoom.FireExtinction();
+            }
+        }
+
+
     }
 
     void FixedUpdate()
@@ -175,5 +203,10 @@ public class Player : MonoBehaviour
             newVelocity.y = 0;
             rigidbody2D.velocity = newVelocity;
         }
+    }
+
+    public Object GetObject()
+    {
+        return inHand;
     }
 }

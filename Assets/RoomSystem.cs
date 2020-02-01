@@ -8,8 +8,10 @@ public class RoomSystem : MonoBehaviour
     // Start is called before the first frame update
     private bool withoutOxygen = false;
     public bool onFire = false;
-    private float timeToBurn = 5.0f;
+    private float timeToBurn = 1.5f;
     private float counterTime = 0.0f;
+
+    float LevelFire = 0.0f;
     void Start()
     {
         
@@ -24,9 +26,14 @@ public class RoomSystem : MonoBehaviour
             if (counterTime >= timeToBurn)
             {
                 counterTime = 0.0f;
-                foreach (var door in doors)
+                LevelFire += 0.2f;
+                if (LevelFire > 1.5f)
                 {
-                    door.BurnRoom();
+                    GetComponent<SpriteRenderer>().color = Color.red;
+                    foreach (var door in doors)
+                    {
+                        door.BurnRoom();
+                    }
                 }
             }
         }
@@ -61,5 +68,11 @@ public class RoomSystem : MonoBehaviour
             GetComponent<SpriteRenderer>().color = Color.white;
             counterTime = 0.0f;
         }
+    }
+
+    public void FireExtinction()
+    {
+        LightRoom(false);
+        LevelFire = 0.0f;
     }
 }
