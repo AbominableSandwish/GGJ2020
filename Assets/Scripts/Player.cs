@@ -72,7 +72,6 @@ public class Player : MonoBehaviour
         if (ladder != null) {
             if (fixedMove.y < 0) {
                 if (standingOn == GROUND) {
-                    Debug.Log("Stop Climbing");
                     StopClimbing();
                 } else if (standingOn == LADDER) {
                     ladder.GetComponent<Ladder>().ActivateTopPlatform(false);
