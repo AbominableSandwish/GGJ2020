@@ -6,7 +6,8 @@ public class Player : MonoBehaviour
 {
     private const bool RIGHT = true;
     private const bool LEFT = false;
-    private float MOVEMENT_SMOTHING = .05f;
+    private const float MOVEMENT_SMOTHING = 0.05f;
+    private const float MAX_HORIZONTAL_LADDER_OFFSET = 0.1f;
 
     [SerializeField] private int maxHp = 10;
     [SerializeField] private float velocity = 20;
@@ -65,7 +66,10 @@ public class Player : MonoBehaviour
     {
         Vector2 fixedMove = move * Time.fixedDeltaTime;
 
-        if (ladder == null) {
+        if (
+            ladder == null ||
+            (move.y <= 0 && IsGrounded())
+        ) {
             stopClimbing();
         } else if (move.y != 0) {
             startClimbing();
@@ -75,6 +79,20 @@ public class Player : MonoBehaviour
         float targetVelocityY = rigidbody2D.velocity.y;
 
         if (isClimbing) {
+            float playerX = transform.position.x;
+            float ladderX = ladder.transform.position.x;
+            float xDiff = Mathf.Abs(playerX - ladderX);
+
+            if (xDiff > MAX_HORIZONTAL_LADDER_OFFSET) {
+                if (playerX > ladderX) {
+                    targetVelocityX = -3;
+                } else {
+                    targetVelocityX = 3;
+                }
+            } else {
+                targetVelocityX = 0;
+            }
+
             targetVelocityY = fixedMove.y * 10f;
         }
 
