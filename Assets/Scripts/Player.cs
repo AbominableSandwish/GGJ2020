@@ -29,6 +29,7 @@ public class Player : MonoBehaviour
     
     [SerializeField] private LayerMask groundLayer;
 
+    private int hp;
     private bool hasBubbleSuit = false;
     private bool isUsingExtinguisher = false;
     private Vector2 move = Vector2.zero;
@@ -63,18 +64,20 @@ public class Player : MonoBehaviour
     void Start()
     {
         this.gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        animator = GetComponent<Animator>();
         rigidbody2D = GetComponent<Rigidbody2D>();
         extinguisherParticles = transform.Find("Extinguisher Particles").gameObject.GetComponent<ParticleSystem>();
 
         gravityScaleBackup = rigidbody2D.gravityScale;
 
         Physics2D.IgnoreCollision(GameObject.Find("Spatialship").GetComponent<Collider2D>(), GetComponent<Collider2D>());
+
+        hp = maxHp;
     }
 
     void Awake()
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -131,6 +134,14 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (IsDead())
+        {
+            move = Vector2.zero;
+            return;
+        }
+
+        animator.SetBool("Dead", false);
+
         move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * velocity;
         if (Input.GetAxisRaw("Horizontal") > 0)
         {
@@ -248,6 +259,11 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         if (!IsSleeping)
+        if (IsDead()) {
+            return;
+        }
+
+        if (InAction)
         {
             if (InAction)
             {
@@ -438,4 +454,44 @@ public class Player : MonoBehaviour
         }
     }
 
+    public bool IsDead()
+    {
+        return hp <= 0;
+    }
+
+    public void InflictDamage(int damage)
+    {
+        if (!IsDead())
+        {
+            hp  -= damage;
+            
+            if (IsDead())
+            {
+                Kill();
+            }
+        }
+    }
+
+    public void Kill()
+    {
+        hp = 0;
+        animator.SetBool("Dead", true);
+        animator.SetTrigger("Death");
+    }
+
+    public void Revive(int hp)
+    {
+        this.hp = hp;
+
+        if (this.hp > maxHp) {
+            this.hp = maxHp;
+        }
+
+        animator.SetBool("Dead", false);
+    }
+
+    public int GetHP()
+    {
+        return hp;
+    }
 }
