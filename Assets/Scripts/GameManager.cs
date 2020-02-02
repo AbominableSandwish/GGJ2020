@@ -1,18 +1,69 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using UnityEditor.Experimental;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private GameObject Rooms;
-    [SerializeField] private Text textLife;
+
+    [Header("Danger After Impact")]
+    [SerializeField] private GameObject Fire;
+
+    private Text HealthText;
+    private Text ScoreText;
 
     private RoomSystem[] rooms;
+
+    // EVENT //
+    float LastEventTime = 60.0f;
+
+    enum Event
+    {
+        Asteroid,
+        Comet,
+        Mist,
+        Attack
+    }
+
+
+    enum Danger
+    {
+        Fire,
+        Oxygen,
+    }
+
+    //////////////
+    // SCORING //
+    private int Score = 0;
+
+    private int PlanetFound = 0;
+    private int AsteroidDodged = 0;
+    private int FireExtinguished = 0;
+    private int HolePluged = 0;
+    private int RoomRepared = 0;
+
+    private int roomsDestroyed = 0;
+
+    public enum Gain
+    {
+        ASTEROID_DODGED = 1,
+        PLANET = 5,
+        FIRE_EXTINGUISHED = 30,
+        HOLE_PLOGED = 35,
+        REPARE = 100,
+    }
+
+
     // Start is called before the first frame update
     void Start()
     {
         rooms = Rooms.GetComponentsInChildren<RoomSystem>();
+
+        HealthText = GameObject.Find("HealthText").GetComponent<Text>();
+        ScoreText = GameObject.Find("ScoreText").GetComponent<Text>();
     }
 
     // Update is called once per frame
@@ -24,12 +75,68 @@ public class GameManager : MonoBehaviour
             currentLife += room.GetHealt();
         }
 
-        textLife.text = "LIFE: " + currentLife +" / "+ 45 * rooms.Length;
+        HealthText.text = "HEALTH: " + currentLife +" / "+ 45 * rooms.Length;
     }
+
+    public void AddScore(Gain action)
+    {
+       
+        
+        switch (action)
+        {
+            case Gain.ASTEROID_DODGED:
+                AsteroidDodged++;
+                break;
+            case Gain.FIRE_EXTINGUISHED:
+                FireExtinguished++;
+                break;
+            case Gain.HOLE_PLOGED:
+                HolePluged++;
+                break;
+            case Gain.PLANET:
+                PlanetFound++;
+                break;
+            case Gain.REPARE:
+                RoomRepared++;
+                break; 
+        }
+
+        this.Score += (int)action;
+        if (Score < 10)
+        {
+            ScoreText.text = "SCORE: 000" + Score.ToString();
+        }
+        if (Score >= 10 && Score < 100)
+        {
+            ScoreText.text = "SCORE: 00" + Score.ToString() ;
+        }
+
+        if (Score >= 100 && Score < 1000)
+        {
+            ScoreText.text = "SCORE: 0" + Score.ToString();
+        }
+        if (Score >= 1000)
+        {
+            ScoreText.text = "SCORE: " + Score.ToString();
+        }
+    } 
 
     public void LightRoom()
     {
-       
-        rooms[Random.Range(0, rooms.Length)].LightRoom(true);
+        RoomSystem room = rooms[Random.Range(0, rooms.Length)];
+        room.LightRoom(true, Fire);
+    }
+
+    public void Impact()
+    {
+        if (Random.Range(0, 10) <= 5)
+        {
+            LightRoom();
+        }
+        else
+        {
+            LightRoom();
+        }
+
     }
 }

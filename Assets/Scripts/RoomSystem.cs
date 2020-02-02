@@ -13,6 +13,8 @@ public class RoomSystem : MonoBehaviour
 
     private int HealtRoom = 45;
 
+    private GameObject have;
+
     float LevelFire = 0.0f;
     void Start()
     {
@@ -44,7 +46,7 @@ public class RoomSystem : MonoBehaviour
 
                     foreach (var door in doors)
                     {
-                        door.BurnRoom();
+                        door.BurnRoom(have);
                     }
                 }
             }
@@ -68,11 +70,13 @@ public class RoomSystem : MonoBehaviour
         }
     }
 
-    public void LightRoom(bool set)
+    public void LightRoom(bool set, GameObject fire)
     {
         onFire = set;
         if (onFire)
         {
+            have = fire;
+            Instantiate(fire, transform.position, Quaternion.identity, transform);
             GetComponent<SpriteRenderer>().color = Color.yellow;
         }
         else
@@ -84,7 +88,8 @@ public class RoomSystem : MonoBehaviour
 
     public void FireExtinction()
     {
-        LightRoom(false);
+        LightRoom(false, null);
+        have = null;
         LevelFire = 0.0f;
     }
 

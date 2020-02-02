@@ -51,6 +51,8 @@ public class Player : MonoBehaviour
         rigidbody2D = GetComponent<Rigidbody2D>();
 
         gravityScaleBackup = rigidbody2D.gravityScale;
+
+        Physics2D.IgnoreCollision(GameObject.Find("Spatialship").GetComponent<Collider2D>(), GetComponent<Collider2D>());
     }
 
     void Awake()
