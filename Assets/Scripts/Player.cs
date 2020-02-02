@@ -265,10 +265,6 @@ public class Player : MonoBehaviour
 
         if (!IsSleeping)
         {
-          
-
-            if (InAction)
-            {
                 if (InAction)
                 {
                     if (CurrentRoom.GetOnFire() || CurrentRoom.GetOxygen())
@@ -363,7 +359,6 @@ public class Player : MonoBehaviour
                 {
                     Flip();
                 }
-            }
         }
     }
 
