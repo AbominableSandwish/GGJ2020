@@ -25,7 +25,8 @@ public class Player : MonoBehaviour
     private const float MAX_HORIZONTAL_LADDER_OFFSET = 0.1f;
 
     [SerializeField] private int maxHp = 10;
-    [SerializeField] private float velocity = 20;
+    [SerializeField] public float velocity = 20;
+    
     [SerializeField] private LayerMask groundLayer;
 
     private bool hasBubbleSuit = false;
@@ -47,6 +48,7 @@ public class Player : MonoBehaviour
 
     private bool InAction = false;
     private float TimetoAction = 0.0f;
+    private bool IsSleeping = false;
 
     private bool isRight = true;
 
@@ -100,6 +102,11 @@ public class Player : MonoBehaviour
                 {
                     ObjectCollectable = other.gameObject;
                 }
+
+                if (other.gameObject.tag == "Bed")
+                {
+                    ObjectCollectable = other.gameObject;
+                }
             }
         }
     }
@@ -108,10 +115,10 @@ public class Player : MonoBehaviour
     {
         if (other.gameObject.tag == "Ladder")
         {
-            ladder.GetComponent<Ladder>().ActivateTopPlatform(true);
+            other.gameObject.GetComponent<Ladder>().ActivateTopPlatform(true);
             ladder = null;
         }
-
+            
         if (inHand == Object.EMPTY)
         {
             if (other.gameObject.tag == "Extinguisher" || other.gameObject.tag == "BottleOxygen" || other.gameObject.tag == "RepairKit")
@@ -172,13 +179,11 @@ public class Player : MonoBehaviour
                     {
                         inHand = Object.EMPTY;
                         ObjectCollectable.GetComponent<CollectableObject>().SetFollowing(null);
-                        ObjectCollectable = null;
                     }
                     if (inHand == Object.SPACESUIT)
                     {
                         inHand = Object.EMPTY;
                         ObjectCollectable.GetComponent<CollectableObject>().SetFollowing(null);
-                        ObjectCollectable = null;
                         EquipBubbleSuit(!hasBubbleSuit);
                     }
                 }
@@ -188,6 +193,11 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.E) && !isClimbing)
         {
+            if (ObjectCollectable.gameObject.tag == "Bed")
+            {
+                IsSleeping = true;
+            }
+
             if (inHand == Object.EXTINGUISHER)
             {
                 InAction = true;
@@ -200,9 +210,23 @@ public class Player : MonoBehaviour
                 InAction = true;
                 TimetoAction = 3.0f;
             }
+            if (inHand == Object.SPACESUIT)
+            {
+                if (CurrentRoom.GetOxygen())
+                {
+                    animator.SetBool("IsReparing", true);
+                    InAction = true;
+                    TimetoAction = 3.0f;
+                }
+            }
         }
         if (Input.GetKeyUp(KeyCode.E))
         {
+            if (ObjectCollectable.gameObject.tag == "Bed")
+            {
+                IsSleeping = false;
+            }
+
             if (inHand == Object.EXTINGUISHER)
             {
                 UseExtinguisher(false);
@@ -213,97 +237,112 @@ public class Player : MonoBehaviour
                 animator.SetBool("IsReparing", false);
                 InAction = false;
             }
+            if (inHand == Object.SPACESUIT)
+            {
+                animator.SetBool("IsReparing", false);
+                InAction = false;
+            }
         }
     }
 
     void FixedUpdate()
     {
-        if (InAction)
+        if (!IsSleeping)
         {
-            if (CurrentRoom.GetOnFire())
+            if (InAction)
             {
-                TimetoAction -= Time.deltaTime;
-                gameManager.GetComponent<GameManager>().AddScore(GameManager.Gain.FIRE_EXTINGUISHED);
-                if (TimetoAction <= 0.0f)
+                if (CurrentRoom.GetOnFire() || CurrentRoom.GetOxygen())
                 {
-                    if (inHand == Object.EXTINGUISHER)
+                    TimetoAction -= Time.deltaTime;
+                    gameManager.GetComponent<GameManager>().AddScore(GameManager.Gain.FIRE_EXTINGUISHED);
+                    if (TimetoAction <= 0.0f)
                     {
-                        CurrentRoom.FireExtinction();
+                        if (inHand == Object.EXTINGUISHER)
+                        {
+                            CurrentRoom.FireExtinction();
+                        }
+
+                        if (inHand == Object.SPACESUIT)
+                        {
+                            CurrentRoom.RoomPluged();
+                        }
+
+                        InAction = false;
                     }
                 }
             }
-        }
 
-        Vector2 fixedMove = move * Time.fixedDeltaTime;
-        int standingOn = IsStandingOn();
+            Vector2 fixedMove = move * Time.fixedDeltaTime;
+            int standingOn = IsStandingOn();
 
-        if (ladder != null)
-        {
-            if (fixedMove.y < 0)
+            if (ladder != null)
             {
-                if (standingOn == GROUND)
+                if (fixedMove.y < 0)
                 {
-                    StopClimbing();
+                    if (standingOn == GROUND)
+                    {
+                        StopClimbing();
+                    }
+                    else if (standingOn == LADDER)
+                    {
+                        ladder.GetComponent<Ladder>().ActivateTopPlatform(false);
+                        StartClimbing();
+                    }
                 }
-                else if (standingOn == LADDER)
+                else if (fixedMove.y > 0 && standingOn != LADDER)
                 {
-                    ladder.GetComponent<Ladder>().ActivateTopPlatform(false);
+                    ladder.GetComponent<Ladder>().ActivateTopPlatform(true);
                     StartClimbing();
-                }
-            }
-            else if (fixedMove.y > 0 && standingOn != LADDER)
-            {
-                ladder.GetComponent<Ladder>().ActivateTopPlatform(true);
-                StartClimbing();
-            }
-        }
-        else
-        {
-            StopClimbing();
-        }
-
-        float targetVelocityX = InAction ? 0 : fixedMove.x * 10f;
-        float targetVelocityY = rigidbody2D.velocity.y;
-
-        if (isClimbing)
-        {
-            float playerX = transform.position.x;
-            float ladderX = ladder.transform.position.x;
-            float xDiff = Mathf.Abs(playerX - ladderX);
-
-            if (xDiff > MAX_HORIZONTAL_LADDER_OFFSET)
-            {
-                if (playerX > ladderX)
-                {
-                    targetVelocityX = -3;
-                }
-                else
-                {
-                    targetVelocityX = 3;
                 }
             }
             else
             {
-                targetVelocityX = 0;
+                StopClimbing();
             }
 
-            targetVelocityY = fixedMove.y * 10f;
-        }
+            float targetVelocityX = InAction ? 0 : fixedMove.x * 10f;
+            float targetVelocityY = rigidbody2D.velocity.y;
 
-        rigidbody2D.velocity = Vector3.SmoothDamp(
-            rigidbody2D.velocity,
-            new Vector2(targetVelocityX, targetVelocityY),
-            ref dampVelocity,
-            MOVEMENT_SMOTHING
-        );
+            if (isClimbing)
+            {
+                float playerX = transform.position.x;
+                float ladderX = ladder.transform.position.x;
+                float xDiff = Mathf.Abs(playerX - ladderX);
 
-        if (
-            !isClimbing &&
-            (move.x > 0 && orientation != RIGHT) ||
-            (move.x < 0 && orientation != LEFT)
-        )
-        {
-            Flip();
+                if (xDiff > MAX_HORIZONTAL_LADDER_OFFSET)
+                {
+                    if (playerX > ladderX)
+                    {
+                        targetVelocityX = -3;
+                    }
+                    else
+                    {
+                        targetVelocityX = 3;
+                    }
+                }
+                else
+                {
+                    targetVelocityX = 0;
+                }
+
+                targetVelocityY = fixedMove.y * 10f;
+            }
+
+            rigidbody2D.velocity = Vector3.SmoothDamp(
+                rigidbody2D.velocity,
+                new Vector2(targetVelocityX, targetVelocityY),
+                ref dampVelocity,
+                MOVEMENT_SMOTHING
+            );
+
+            if (
+                !isClimbing &&
+                (move.x > 0 && orientation != RIGHT) ||
+                (move.x < 0 && orientation != LEFT)
+            )
+            {
+                Flip();
+            }
         }
     }
 

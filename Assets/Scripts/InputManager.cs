@@ -24,6 +24,7 @@ public class InputManager : MonoBehaviour
                 GameObject.Find("FirePropulseur_medium").transform.localScale -= Vector3.one * (Input.mouseScrollDelta.y / 40);
                 GameObject.Find("FirePropulseur_medium2").transform.localScale -= Vector3.one * (Input.mouseScrollDelta.y / 40);
                 GameObject.Find("FirePropulseur_medium3").transform.localScale -= Vector3.one * (Input.mouseScrollDelta.y / 40);
+
             }
         }
     }

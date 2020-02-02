@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Danger After Impact")]
     [SerializeField] private GameObject Fire;
+    [SerializeField] private GameObject Hole;
 
     private Text HealthText;
     private Text ScoreText;
@@ -123,14 +124,30 @@ public class GameManager : MonoBehaviour
 
     public void LightRoom()
     {
-        RoomSystem room = rooms[Random.Range(0, rooms.Length)];
+        List<RoomSystem> FreeRooms = CheckFreeRoom();
+        RoomSystem room = FreeRooms[Random.Range(0, FreeRooms.Count)];
         room.LightRoom(true, Fire);
+    }
+
+    List<RoomSystem> CheckFreeRoom()
+    {
+        List<RoomSystem> FreeRooms = new List<RoomSystem>();
+
+        foreach (var room in rooms)
+        {
+            if (!room.onFire && !room.GetOxygen())
+            {
+                FreeRooms.Add(room);
+            }
+        }
+        return FreeRooms;
     }
 
     public void DepressurizeRoom()
     {
-        RoomSystem room = rooms[Random.Range(0, rooms.Length)];
-        room.Depressurize();
+        List<RoomSystem> FreeRooms = CheckFreeRoom();
+        RoomSystem room = FreeRooms[Random.Range(0, FreeRooms.Count)];
+        room.Depressurize(true, Hole);
     }
 
     public void Impact()
@@ -141,7 +158,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            LightRoom();
+            DepressurizeRoom();
         }
 
     }

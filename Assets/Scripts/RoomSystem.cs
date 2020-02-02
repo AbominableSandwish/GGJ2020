@@ -70,15 +70,22 @@ public class RoomSystem : MonoBehaviour
         }
     }
 
-    public void Depressurize()
+    public void Depressurize(bool set, GameObject hole)
     {
-        withoutOxygen = !withoutOxygen;
+        withoutOxygen = set;
         if (withoutOxygen)
         {
+            danger = hole;
+            dangers.Add(Instantiate(hole, transform.position, Quaternion.identity, transform));
             GetComponent<SpriteRenderer>().color = Color.gray;
         }
         else
         {
+             foreach (var danger in dangers)
+            {
+                Destroy(danger);
+            }
+            dangers.Clear();
             GetComponent<SpriteRenderer>().color = Color.white;
         }
         foreach (var door in doors)
@@ -104,7 +111,7 @@ public class RoomSystem : MonoBehaviour
             dangers.Clear();
             if (HealthRoom <= 20)
             {
-                GetComponent<SpriteRenderer>().color = new Color(0.3f, 0.3f, 0.3f, 0.0f);
+                GetComponent<SpriteRenderer>().color = new Color(0.3f, 0.3f, 0.3f, 1.0f);
                 counterTime = 0.0f;
             }
             else
@@ -123,12 +130,23 @@ public class RoomSystem : MonoBehaviour
             LightRoom(false, null);
             danger = null;
             LevelFire = 0.0f;
+            
         }
+    }
+
+    public void RoomPluged()
+    {
+        Depressurize(false, null);
+        danger = null;
     }
 
     public bool GetOnFire()
     {
         return onFire;
+    }
+    public bool GetOxygen()
+    {
+        return withoutOxygen;
     }
 
     public int GetHealth()

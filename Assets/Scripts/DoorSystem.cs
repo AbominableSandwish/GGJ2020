@@ -92,7 +92,7 @@ public class DoorSystem : MonoBehaviour
     // Update is called once per frame
     public void SetDoor(bool set)
     {
-        if (isOpen == set)
+        if (isOpen != set)
         {
             isOpen = set;
             if (isOpen)
@@ -106,26 +106,49 @@ public class DoorSystem : MonoBehaviour
                 {
                     if (GameObject.Find("Player").GetComponent<Player>().GetObject() == Player.Object.SPACESUIT)
                     {
-                        GetComponent<BoxCollider2D>().isTrigger = true;
+                        GetComponent<BoxCollider2D>().isTrigger = false;
+                        Physics2D.IgnoreCollision(GetComponent<Collider2D>(), GameObject.Find("Player").GetComponent<Collider2D>(), true);
                         door = State.OPEN;
                     }
                 }
             }
             else
             {
-                GetComponent<BoxCollider2D>().isTrigger = true;
-                door = State.CLOSE;
+                if (!withoutOxygen)
+                {
+                    GetComponent<BoxCollider2D>().isTrigger = true;
+                    door = State.CLOSE;
+                }
+                else
+                {
+                    if (GameObject.Find("Player").GetComponent<Player>().GetObject() == Player.Object.SPACESUIT)
+                    {
+                        GetComponent<BoxCollider2D>().isTrigger = false;
+                        Physics2D.IgnoreCollision(GetComponent<Collider2D>(), GameObject.Find("Player").GetComponent<Collider2D>(), false);
+                        door = State.CLOSE;
+                    }
+                }
             }
         }
     }
 
 
 
-    void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D other)
     {
-        if (collision.gameObject.tag == "Player")
+        if (other.gameObject.tag == "Player")
         {
-            SetDoor(true);
+            if (!withoutOxygen)
+            {
+                SetDoor(true);
+            }
+            else
+            {
+                if (other.gameObject.GetComponent<Player>().GetObject() == Player.Object.SPACESUIT)
+                {
+                    SetDoor(true);
+                }
+            }
         }
     }
 
@@ -133,7 +156,17 @@ public class DoorSystem : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            SetDoor(false);
+            if (!withoutOxygen)
+            {
+                SetDoor(false);
+            }
+            else
+            {
+                if (other.gameObject.GetComponent<Player>().GetObject() == Player.Object.SPACESUIT)
+                {
+                    SetDoor(false);
+                }
+            }
         }
     }
 
@@ -144,6 +177,7 @@ public class DoorSystem : MonoBehaviour
         {
             this.DoorTop.gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
             this.DoorBot.gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
+            GetComponent<BoxCollider2D>().isTrigger = false;
         }
         else
         {

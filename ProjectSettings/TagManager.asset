@@ -14,6 +14,7 @@ TagManager:
   - RepairKit
   - Door
   - Room
+  - Bed
   layers:
   - Default
   - TransparentFX
