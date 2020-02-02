@@ -258,106 +258,111 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!IsSleeping)
-        if (IsDead()) {
+        if (IsDead())
+        {
             return;
         }
 
-        if (InAction)
+        if (!IsSleeping)
         {
+          
+
             if (InAction)
             {
-                if (CurrentRoom.GetOnFire() || CurrentRoom.GetOxygen())
+                if (InAction)
                 {
-                    TimetoAction -= Time.deltaTime;
-                    gameManager.GetComponent<GameManager>().AddScore(GameManager.Gain.FIRE_EXTINGUISHED);
-                    if (TimetoAction <= 0.0f)
+                    if (CurrentRoom.GetOnFire() || CurrentRoom.GetOxygen())
                     {
-                        if (inHand == Object.EXTINGUISHER)
+                        TimetoAction -= Time.deltaTime;
+                        gameManager.GetComponent<GameManager>().AddScore(GameManager.Gain.FIRE_EXTINGUISHED);
+                        if (TimetoAction <= 0.0f)
                         {
-                            CurrentRoom.FireExtinction();
-                        }
+                            if (inHand == Object.EXTINGUISHER)
+                            {
+                                CurrentRoom.FireExtinction();
+                            }
 
-                        if (inHand == Object.SPACESUIT)
-                        {
-                            CurrentRoom.RoomPluged();
-                        }
+                            if (inHand == Object.SPACESUIT)
+                            {
+                                CurrentRoom.RoomPluged();
+                            }
 
-                        InAction = false;
+                            InAction = false;
+                        }
                     }
                 }
-            }
 
-            Vector2 fixedMove = move * Time.fixedDeltaTime;
-            int standingOn = IsStandingOn();
+                Vector2 fixedMove = move * Time.fixedDeltaTime;
+                int standingOn = IsStandingOn();
 
-            if (ladder != null)
-            {
-                if (fixedMove.y < 0)
+                if (ladder != null)
                 {
-                    if (standingOn == GROUND)
+                    if (fixedMove.y < 0)
                     {
-                        StopClimbing();
+                        if (standingOn == GROUND)
+                        {
+                            StopClimbing();
+                        }
+                        else if (standingOn == LADDER)
+                        {
+                            ladder.GetComponent<Ladder>().ActivateTopPlatform(false);
+                            StartClimbing();
+                        }
                     }
-                    else if (standingOn == LADDER)
+                    else if (fixedMove.y > 0 && standingOn != LADDER)
                     {
-                        ladder.GetComponent<Ladder>().ActivateTopPlatform(false);
+                        ladder.GetComponent<Ladder>().ActivateTopPlatform(true);
                         StartClimbing();
-                    }
-                }
-                else if (fixedMove.y > 0 && standingOn != LADDER)
-                {
-                    ladder.GetComponent<Ladder>().ActivateTopPlatform(true);
-                    StartClimbing();
-                }
-            }
-            else
-            {
-                StopClimbing();
-            }
-
-            float targetVelocityX = InAction ? 0 : fixedMove.x * 10f;
-            float targetVelocityY = rigidbody2D.velocity.y;
-
-            if (isClimbing)
-            {
-                float playerX = transform.position.x;
-                float ladderX = ladder.transform.position.x;
-                float xDiff = Mathf.Abs(playerX - ladderX);
-
-                if (xDiff > MAX_HORIZONTAL_LADDER_OFFSET)
-                {
-                    if (playerX > ladderX)
-                    {
-                        targetVelocityX = -3;
-                    }
-                    else
-                    {
-                        targetVelocityX = 3;
                     }
                 }
                 else
                 {
-                    targetVelocityX = 0;
+                    StopClimbing();
                 }
 
-                targetVelocityY = fixedMove.y * 10f;
-            }
+                float targetVelocityX = InAction ? 0 : fixedMove.x * 10f;
+                float targetVelocityY = rigidbody2D.velocity.y;
 
-            rigidbody2D.velocity = Vector3.SmoothDamp(
-                rigidbody2D.velocity,
-                new Vector2(targetVelocityX, targetVelocityY),
-                ref dampVelocity,
-                MOVEMENT_SMOTHING
-            );
+                if (isClimbing)
+                {
+                    float playerX = transform.position.x;
+                    float ladderX = ladder.transform.position.x;
+                    float xDiff = Mathf.Abs(playerX - ladderX);
 
-            if (
-                !isClimbing &&
-                (move.x > 0 && orientation != RIGHT) ||
-                (move.x < 0 && orientation != LEFT)
-            )
-            {
-                Flip();
+                    if (xDiff > MAX_HORIZONTAL_LADDER_OFFSET)
+                    {
+                        if (playerX > ladderX)
+                        {
+                            targetVelocityX = -3;
+                        }
+                        else
+                        {
+                            targetVelocityX = 3;
+                        }
+                    }
+                    else
+                    {
+                        targetVelocityX = 0;
+                    }
+
+                    targetVelocityY = fixedMove.y * 10f;
+                }
+
+                rigidbody2D.velocity = Vector3.SmoothDamp(
+                    rigidbody2D.velocity,
+                    new Vector2(targetVelocityX, targetVelocityY),
+                    ref dampVelocity,
+                    MOVEMENT_SMOTHING
+                );
+
+                if (
+                    !isClimbing &&
+                    (move.x > 0 && orientation != RIGHT) ||
+                    (move.x < 0 && orientation != LEFT)
+                )
+                {
+                    Flip();
+                }
             }
         }
     }
