@@ -1804,13 +1804,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 290594563}
-  m_LocalRotation: {x: 0, y: 0, z: -0.9999769, w: 0.0068068}
+  m_LocalRotation: {x: 0, y: 0, z: -0.98602515, w: 0.1665967}
   m_LocalPosition: {x: 19.37, y: 11.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 631646654}
   m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -179.22}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -160.82}
 --- !u!199 &290594565
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -2443,7 +2443,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 1000
+    maxNumParticles: 10
     size3D: 0
     rotation3D: 1
     gravityModifier:
@@ -2646,7 +2646,7 @@ ParticleSystem:
           m_PostInfinity: 2
           m_RotationOrder: 4
     arc:
-      value: 60
+      value: 30
       mode: 0
       spread: 0
       speed:
@@ -2708,7 +2708,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 10
+      scalar: 0.5
       minScalar: 10
       maxCurve:
         serializedVersion: 2
