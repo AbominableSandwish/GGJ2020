@@ -15,7 +15,8 @@ public class MotherFuckingAudioManager : MonoBehaviour
     {
         NONE,
         MAIN,
-        SECOND,
+        MENU,
+        OVER
     }
 
     public enum SoundList
@@ -79,7 +80,8 @@ public class MotherFuckingAudioManager : MonoBehaviour
 
     [Header("Music")]
     [SerializeField] private AudioClip mainMusic;
-    [SerializeField] private AudioClip SecondMusic;
+    [SerializeField] private AudioClip menuMusic;
+    [SerializeField] private AudioClip gameOver;
     [Header("Sound")]
     [Header("Example")]
     [SerializeField] private AudioClip[] reactionHappy;
@@ -201,8 +203,12 @@ public class MotherFuckingAudioManager : MonoBehaviour
                         emitterAvailable.clip = mainMusic;
                         emitterAvailable.Play();
                         break;
-                    case MusicList.SECOND:
-                        emitterAvailable.clip = SecondMusic;
+                    case MusicList.MENU:
+                        emitterAvailable.clip = menuMusic;
+                        emitterAvailable.Play();
+                        break;
+                    case MusicList.OVER:
+                        emitterAvailable.clip = gameOver;
                         emitterAvailable.Play();
                         break;
                 }
