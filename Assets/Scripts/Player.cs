@@ -207,6 +207,8 @@ public class Player : MonoBehaviour
             if (ObjectCollectable.gameObject.tag == "Bed")
             {
                 IsSleeping = true;
+                GetComponent<Animator>().SetBool("IsSleeping", true);
+                ObjectCollectable.gameObject.GetComponent<BedSystem>().Sleep(true);
             }
 
             if (inHand == Object.EXTINGUISHER)
@@ -235,6 +237,8 @@ public class Player : MonoBehaviour
         {
             if (ObjectCollectable.gameObject.tag == "Bed")
             {
+                GetComponent<Animator>().SetBool("IsSleeping", false);
+                ObjectCollectable.gameObject.GetComponent<BedSystem>().Sleep(false);
                 IsSleeping = false;
             }
 

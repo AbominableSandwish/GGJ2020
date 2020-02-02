@@ -8,8 +8,8 @@ public class SpawnerSpaceObject : MonoBehaviour
 {
     [SerializeField] private Vector2 Size;
 
-    private int SpaceObjectToLaunch = 7;
-    private float timeToSpawn = 2.5f;
+    private int SpaceObjectToLaunch = 15;
+    private float timeToSpawn = 1.5f;
     private float counterTime=0.0f ;
 
     [SerializeField] List<GameObject> SpaceObject;
@@ -25,7 +25,7 @@ public class SpawnerSpaceObject : MonoBehaviour
                 int rdm = (int) DateTime.Now.Ticks;
                 Random.InitState(rdm);
 
-                if (Random.value * 100 <= 25)
+                if (Random.value * 100 <= 35)
                 {
                     Vector3 new_position = new Vector3(transform.position.x + Random.Range(0, Size.x),
                                                transform.position.y + Random.value * Size.y) - (Vector3) Size / 2;
