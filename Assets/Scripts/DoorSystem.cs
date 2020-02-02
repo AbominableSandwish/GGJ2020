@@ -41,30 +41,28 @@ public class DoorSystem : MonoBehaviour
         OpenPositionBot = this.DoorBot.localPosition + new Vector3(0.0f, -0.25f);
     }
 
-    void Update()
+    void FixedUpdate()
     {
         switch (door)
         {
             case State.OPEN:
                 if (this.DoorTop.localPosition.y <= OpenPositionTop.y && this.DoorBot.localPosition.y >= OpenPositionBot.y)
                 {
-                    Debug.Log("Door Opening");
                     this.DoorTop.localPosition += Vector3.up * Time.deltaTime;
                     this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size =
-                        this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, -0.01f);
+                        this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, -0.025f);
                     this.DoorBot.localPosition += Vector3.down * Time.deltaTime;
                     this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size =
-                        this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, -0.01f);
+                        this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, -0.025f);
                 }
                 else
                 {
-                    Debug.Log("Door Opened");
                     this.DoorTop.localPosition = OpenPositionTop;
                     this.DoorBot.localPosition = OpenPositionBot;
                     door = State.WAIT;
                     if (isOpen != true)
                     {
-                        SetDoor();
+                       SetDoor(false);
                     }
                 }
 
@@ -72,17 +70,15 @@ public class DoorSystem : MonoBehaviour
             case State.CLOSE:
                 if (this.DoorTop.localPosition.y >= ClosePositionTop.y && this.DoorBot.localPosition.y <= ClosePositionBot.y)
                 {
-                    Debug.Log("Door Closing");
                     this.DoorTop.localPosition -= Vector3.up * Time.deltaTime;
                     this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size =
-                        this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, 0.01f);
+                        this.DoorTop.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, 0.025f);
                     this.DoorBot.localPosition -= Vector3.down * Time.deltaTime;
                     this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size =
-                        this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, +0.01f);
+                        this.DoorBot.gameObject.GetComponent<SpriteRenderer>().size + new Vector2(0.0f, +0.025f);
                 }
                 else
                 {
-                    Debug.Log("Door Closed");
                     this.DoorTop.localPosition = ClosePositionTop;
                     this.DoorBot.localPosition = ClosePositionBot;
 
@@ -94,39 +90,42 @@ public class DoorSystem : MonoBehaviour
     }
 
     // Update is called once per frame
-    public void SetDoor()
+    public void SetDoor(bool set)
     {
-            isOpen = !isOpen;
+        if (isOpen == set)
+        {
+            isOpen = set;
             if (isOpen)
             {
                 if (!withoutOxygen)
                 {
                     GetComponent<BoxCollider2D>().isTrigger = true;
                     door = State.OPEN;
-            }
+                }
                 else
                 {
                     if (GameObject.Find("Player").GetComponent<Player>().GetObject() == Player.Object.SPACESUIT)
                     {
                         GetComponent<BoxCollider2D>().isTrigger = true;
                         door = State.OPEN;
-                    } 
+                    }
                 }
             }
             else
             {
-                GetComponent<BoxCollider2D>().isTrigger = false;
+                GetComponent<BoxCollider2D>().isTrigger = true;
                 door = State.CLOSE;
             }
+        }
     }
 
 
 
-    void OnCollisionEnter2D(Collision2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Player")
         {
-            SetDoor();
+            SetDoor(true);
         }
     }
 
@@ -134,7 +133,7 @@ public class DoorSystem : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            SetDoor();
+            SetDoor(false);
         }
     }
 
@@ -153,7 +152,7 @@ public class DoorSystem : MonoBehaviour
         }
     }
 
-    public void BurnRoom()
+    public void BurnRoom(GameObject fire)
     {
         if (Random.Range(0, 100) <= 25)
         {
@@ -161,7 +160,7 @@ public class DoorSystem : MonoBehaviour
             {
                 if (!room.onFire)
                 {
-                    room.LightRoom(true);
+                    room.LightRoom(true, fire);
                 }
             }
         }

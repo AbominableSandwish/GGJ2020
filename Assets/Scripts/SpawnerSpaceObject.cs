@@ -4,26 +4,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class SpawnerPlanet : MonoBehaviour
+public class SpawnerSpaceObject : MonoBehaviour
 {
     [SerializeField] private Vector2 Size;
 
-    private const int MAX_PLANET = 5;
-    private int countPlanet = 0;
+    private int SpaceObjectToLaunch = 7;
     private float timeToSpawn = 2.5f;
     private float counterTime=0.0f ;
 
-    [SerializeField] List<GameObject> Planets;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] List<GameObject> SpaceObject;
 
     // Update is called once per frame
     void Update()
     {
-        if (countPlanet != MAX_PLANET)
+        if (SpaceObjectToLaunch != 0)
         {
             counterTime += Time.deltaTime;
             if (counterTime >= timeToSpawn)
@@ -31,13 +25,13 @@ public class SpawnerPlanet : MonoBehaviour
                 int rdm = (int) DateTime.Now.Ticks;
                 Random.InitState(rdm);
 
-                if (Random.value * 100 <= 20)
+                if (Random.value * 100 <= 25)
                 {
                     Vector3 new_position = new Vector3(transform.position.x + Random.Range(0, Size.x),
                                                transform.position.y + Random.value * Size.y) - (Vector3) Size / 2;
-                    Instantiate(Planets[(int) (Random.value * Planets.Count)], new_position, Quaternion.identity,
+                    Instantiate(SpaceObject[(int) (Random.value * SpaceObject.Count)], new_position, Quaternion.identity,
                         transform);
-                    countPlanet++;
+                    SpaceObjectToLaunch++;
 
                 }
                 counterTime = 0.0f;
@@ -46,9 +40,9 @@ public class SpawnerPlanet : MonoBehaviour
         }
     }
 
-    public void PlanetRemove()
+    public void LaunchSpaceObject(int nbr)
     {
-        countPlanet--;
+        SpaceObjectToLaunch += nbr;
     }
 
     void OnDrawGizmosSelected()

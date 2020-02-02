@@ -6,6 +6,14 @@ TagManager:
   tags:
   - Ladder
   - Ladder Top Platform
+  - Planet
+  - Asteroid
+  - Spatialship
+  - Extinguisher
+  - BottleOxygen
+  - RepairKit
+  - Door
+  - Room
   layers:
   - Default
   - TransparentFX
@@ -17,8 +25,8 @@ TagManager:
   - 
   - Ground
   - Ladder Top
-  - 
-  - 
+  - Asteroid
+  - Planet
   - 
   - 
   - 

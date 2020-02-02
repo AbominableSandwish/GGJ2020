@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class AsteroidSystem : MonoBehaviour
 {
-    [SerializeField] private GameObject Rooms;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,9 +16,11 @@ public class GameManager : MonoBehaviour
         
     }
 
-    public void LightRoom()
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        RoomSystem[] rooms = Rooms.GetComponentsInChildren<RoomSystem>();
-        rooms[Random.Range(0, rooms.Length)].LightRoom(true);
+        if (collision.gameObject.tag == "Spatialship")
+        {
+            GameObject.Find("GameManager").GetComponent<GameManager>().Impact();
+        }
     }
 }
