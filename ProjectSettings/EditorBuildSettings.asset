@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TItleScreen.unity
     guid: 65f2775d70814bf12bb376248dfa5e40
+  - enabled: 1
+    path: Assets/Scenes/DylanScene.unity
+    guid: a661641b09590994b97607503e234ac5
   m_configObjects: {}
