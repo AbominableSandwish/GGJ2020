@@ -9,6 +9,11 @@ TagManager:
   - Planet
   - Asteroid
   - Spatialship
+  - Extinguisher
+  - BottleOxygen
+  - RepairKit
+  - Door
+  - Room
   layers:
   - Default
   - TransparentFX

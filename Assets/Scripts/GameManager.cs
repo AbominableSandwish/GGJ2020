@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour
 
     //////////////
     // SCORING //
-    private int Score = 0;
+    private float Score = 0.0f;
 
     private int PlanetFound = 0;
     private int AsteroidDodged = 0;
@@ -49,11 +49,11 @@ public class GameManager : MonoBehaviour
 
     public enum Gain
     {
-        ASTEROID_DODGED = 1,
-        PLANET = 5,
-        FIRE_EXTINGUISHED = 30,
-        HOLE_PLOGED = 35,
-        REPARE = 100,
+        ASTEROID_DODGED = 35,
+        PLANET = 25,
+        FIRE_EXTINGUISHED = 4,
+        HOLE_PLOGED = 3,
+        REPARE = 6,
     }
 
 
@@ -72,7 +72,7 @@ public class GameManager : MonoBehaviour
         int currentLife = 0;
         foreach (var room in rooms)
         {
-            currentLife += room.GetHealt();
+            currentLife += room.GetHealth();
         }
 
         HealthText.text = "HEALTH: " + currentLife +" / "+ 45 * rooms.Length;
@@ -101,23 +101,23 @@ public class GameManager : MonoBehaviour
                 break; 
         }
 
-        this.Score += (int)action;
+        this.Score += (((int)action)/6.0f);
         if (Score < 10)
         {
-            ScoreText.text = "SCORE: 000" + Score.ToString();
+            ScoreText.text = "SCORE: 000" + ((int)Score).ToString();
         }
         if (Score >= 10 && Score < 100)
         {
-            ScoreText.text = "SCORE: 00" + Score.ToString() ;
+            ScoreText.text = "SCORE: 00" + ((int)Score).ToString() ;
         }
 
         if (Score >= 100 && Score < 1000)
         {
-            ScoreText.text = "SCORE: 0" + Score.ToString();
+            ScoreText.text = "SCORE: 0" + ((int)Score).ToString();
         }
         if (Score >= 1000)
         {
-            ScoreText.text = "SCORE: " + Score.ToString();
+            ScoreText.text = "SCORE: " + ((int)Score).ToString();
         }
     } 
 
@@ -125,6 +125,12 @@ public class GameManager : MonoBehaviour
     {
         RoomSystem room = rooms[Random.Range(0, rooms.Length)];
         room.LightRoom(true, Fire);
+    }
+
+    public void DepressurizeRoom()
+    {
+        RoomSystem room = rooms[Random.Range(0, rooms.Length)];
+        room.Depressurize();
     }
 
     public void Impact()

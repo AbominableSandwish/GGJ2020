@@ -13,11 +13,6 @@ public class SpawnerSpaceObject : MonoBehaviour
     private float counterTime=0.0f ;
 
     [SerializeField] List<GameObject> SpaceObject;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()

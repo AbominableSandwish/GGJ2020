@@ -62,7 +62,7 @@ public class DoorSystem : MonoBehaviour
                     door = State.WAIT;
                     if (isOpen != true)
                     {
-                        SetDoor();
+                       SetDoor(false);
                     }
                 }
 
@@ -90,23 +90,25 @@ public class DoorSystem : MonoBehaviour
     }
 
     // Update is called once per frame
-    public void SetDoor()
+    public void SetDoor(bool set)
     {
-            isOpen = !isOpen;
+        if (isOpen == set)
+        {
+            isOpen = set;
             if (isOpen)
             {
                 if (!withoutOxygen)
                 {
                     GetComponent<BoxCollider2D>().isTrigger = true;
                     door = State.OPEN;
-            }
+                }
                 else
                 {
                     if (GameObject.Find("Player").GetComponent<Player>().GetObject() == Player.Object.SPACESUIT)
                     {
                         GetComponent<BoxCollider2D>().isTrigger = true;
                         door = State.OPEN;
-                    } 
+                    }
                 }
             }
             else
@@ -114,6 +116,7 @@ public class DoorSystem : MonoBehaviour
                 GetComponent<BoxCollider2D>().isTrigger = true;
                 door = State.CLOSE;
             }
+        }
     }
 
 
@@ -122,7 +125,7 @@ public class DoorSystem : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
-            SetDoor();
+            SetDoor(true);
         }
     }
 
@@ -130,7 +133,7 @@ public class DoorSystem : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            SetDoor();
+            SetDoor(false);
         }
     }
 
