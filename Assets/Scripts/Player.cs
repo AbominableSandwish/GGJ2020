@@ -26,7 +26,8 @@ public class Player : MonoBehaviour
 
     [SerializeField] private int maxHp = 10;
     [SerializeField] public float velocity = 20;
-    
+    [SerializeField] public float climbVelocity = 5;
+
     [SerializeField] private LayerMask groundLayer;
 
     private int hp;
@@ -89,10 +90,18 @@ public class Player : MonoBehaviour
                 ladder = other.gameObject;
             }
 
+
+
             if (inHand == Object.EMPTY)
             {
+                if (ObjectCollectable.tag == null)
+                {
+                    ObjectCollectable.transform.localScale += new Vector3(0.1f, 0.1f, 0.0f);
+                }
+
                 if (other.gameObject.tag == "Extinguisher")
                 {
+
                     ObjectCollectable = other.gameObject;
                 }
 
@@ -126,6 +135,7 @@ public class Player : MonoBehaviour
         {
             if (other.gameObject.tag == "Extinguisher" || other.gameObject.tag == "BottleOxygen" || other.gameObject.tag == "RepairKit")
             {
+                ObjectCollectable.transform.localScale -= new Vector3(0.1f, 0.1f, 0.0f);
                 ObjectCollectable = null;
             }
         }
@@ -344,8 +354,8 @@ public class Player : MonoBehaviour
                     {
                         targetVelocityX = 0;
                     }
-
-                    targetVelocityY = fixedMove.y * 10f;
+                    //speed
+                    targetVelocityY = fixedMove.y * 4.5f;
                 }
 
                 rigidbody2D.velocity = Vector3.SmoothDamp(

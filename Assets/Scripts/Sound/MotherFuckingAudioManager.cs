@@ -105,7 +105,7 @@ public class MotherFuckingAudioManager : MonoBehaviour
         }
 
         musicEmitters = GetComponents<AudioSource>();
-        PlayMusic(MusicList.MAIN);
+        PlayMusic(MusicList.MENU);
     }
 
     public void PlayAlert(AlertList alert)

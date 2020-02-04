@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEditor.Experimental;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -76,7 +77,14 @@ public class GameManager : MonoBehaviour
             currentLife += room.GetHealth();
         }
 
-        HealthText.text = "HEALTH: " + currentLife +" / "+ 45 * rooms.Length;
+        HealthText.text = currentLife + " / " +  30 * rooms.Length;
+
+        if (currentLife <= 0)
+        {
+            SceneManager.LoadScene(2);
+            GameObject.Find("AudioManager").GetComponent<MotherFuckingAudioManager>()
+                .PlayMusic(MotherFuckingAudioManager.MusicList.OVER);
+        }
     }
 
     public void AddScore(Gain action)
@@ -105,20 +113,20 @@ public class GameManager : MonoBehaviour
         this.Score += (((int)action)/6.0f);
         if (Score < 10)
         {
-            ScoreText.text = "SCORE: 000" + ((int)Score).ToString();
+            ScoreText.text = "000" + ((int)Score).ToString();
         }
         if (Score >= 10 && Score < 100)
         {
-            ScoreText.text = "SCORE: 00" + ((int)Score).ToString() ;
+            ScoreText.text = "00" + ((int)Score).ToString() ;
         }
 
         if (Score >= 100 && Score < 1000)
         {
-            ScoreText.text = "SCORE: 0" + ((int)Score).ToString();
+            ScoreText.text = "0" + ((int)Score).ToString();
         }
         if (Score >= 1000)
         {
-            ScoreText.text = "SCORE: " + ((int)Score).ToString();
+            ScoreText.text = ((int)Score).ToString();
         }
     } 
 

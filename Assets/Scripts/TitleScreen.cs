@@ -19,6 +19,21 @@ public class TitleScreen : MonoBehaviour
 
     public void StartGame()
     {
+        GameObject.Find("AudioManager").GetComponent<MotherFuckingAudioManager>()
+            .PlayMusic(MotherFuckingAudioManager.MusicList.MAIN, true);
         SceneManager.LoadScene(1);
+    }
+
+    public void MainMenu()
+    {
+        GameObject.Find("AudioManager").GetComponent<MotherFuckingAudioManager>()
+            .PlayMusic(MotherFuckingAudioManager.MusicList.MENU, true);
+        SceneManager.LoadScene(0);
+
+    }
+
+    public void Credit()
+    {
+        SceneManager.LoadScene(3);
     }
 }

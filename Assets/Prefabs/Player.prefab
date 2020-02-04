@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3862453962257706093}
   - component: {fileID: 3862453962257706092}
   - component: {fileID: 3862453962257706080}
+  - component: {fileID: 158656925}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -29,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 3862453962257706081}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0}
   m_Children:
   - {fileID: 3862453963105784284}
   - {fileID: 1155387758675656562}
@@ -47,7 +48,7 @@ Animator:
   m_GameObject: {fileID: 3862453962257706081}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 338aa514c76752930bc3ee12985a9b61, type: 2}
+  m_Controller: {fileID: 9100000, guid: 090c4557d1f0bbb499497dedaa7a8916, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -68,11 +69,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47dcf8280a40d43edb488b042f01c0e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inHand: 3
   maxHp: 10
   velocity: 20
+  climbVelocity: 5
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
+  CurrentRoom: {fileID: 0}
+  ObjectCollectable: {fileID: 0}
 --- !u!50 &3862453962257706092
 Rigidbody2D:
   serializedVersion: 4
@@ -107,7 +112,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.022293955, y: -0.10550678}
+  m_Offset: {x: 0.022293955, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -118,8 +123,24 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.81587845, y: 1.3870018}
+  m_Size: {x: 0.4, y: 1.65}
   m_EdgeRadius: 0
+--- !u!58 &158656925
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3862453962257706081}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.8
 --- !u!1 &3862453963105784285
 GameObject:
   m_ObjectHideFlags: 0
@@ -226,13 +247,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5473934821851157258}
-  m_LocalRotation: {x: -0, y: -0, z: -0.01509771, w: 0.9998861}
+  m_LocalRotation: {x: 0, y: 0, z: -0.43413085, w: 0.9008499}
   m_LocalPosition: {x: 0.489, y: 0.011, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3862453962257706082}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -1.7300001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -51.46}
 --- !u!198 &7533548802486442144
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -316,7 +337,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1.5
+      scalar: 0.1
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -485,7 +506,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0.1
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -801,7 +822,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 1000
+    maxNumParticles: 4000
     size3D: 0
     rotation3D: 0
     gravityModifier:
@@ -1066,7 +1087,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 15
+      scalar: 3000
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -2714,7 +2735,7 @@ ParticleSystem:
     magnitude:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 7
+      scalar: 10
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -2823,11 +2844,11 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
   NoiseModule:
-    enabled: 0
+    enabled: 1
     strength:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0.5
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -2993,7 +3014,7 @@ ParticleSystem:
     scrollSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 1
       minScalar: 0
       maxCurve:
         serializedVersion: 2

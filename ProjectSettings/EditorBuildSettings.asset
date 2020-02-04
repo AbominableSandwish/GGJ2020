@@ -14,4 +14,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DylanScene.unity
     guid: a661641b09590994b97607503e234ac5
+  - enabled: 1
+    path: Assets/Scenes/GameOver.unity
+    guid: 757045bef6707a54bb3fa7b4abe66643
+  - enabled: 1
+    path: Assets/Scenes/Credit.unity
+    guid: a6276057fe94e824b9d7fb44d86cd83f
   m_configObjects: {}

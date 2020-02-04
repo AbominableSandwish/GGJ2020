@@ -11,7 +11,7 @@ public class RoomSystem : MonoBehaviour
     private float timeToBurn = 1.5f;
     private float counterTime = 0.0f;
 
-    private int HealthRoom = 45;
+    private int HealthRoom = 30;
 
     private GameObject danger;
     private List<GameObject> dangers; 
@@ -25,6 +25,13 @@ public class RoomSystem : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (withoutOxygen)
+        {
+            if (HealthRoom >= 0)
+                HealthRoom -= 2;
+        }
+
+
         if (onFire)
         {
             counterTime += Time.deltaTime;
@@ -40,8 +47,8 @@ public class RoomSystem : MonoBehaviour
 
                 if (LevelFire > 1.6f)
                 {
-                    if(HealthRoom != 0)
-                        HealthRoom -= 3;
+                    if(HealthRoom >= -15)
+                        HealthRoom -= 5;
                     if (HealthRoom <= 20)
                     {
                         GetComponent<SpriteRenderer>().color = new Color(0.5f, 0, 0, 1);
@@ -87,10 +94,6 @@ public class RoomSystem : MonoBehaviour
             }
             dangers.Clear();
             GetComponent<SpriteRenderer>().color = Color.white;
-        }
-        foreach (var door in doors)
-        {
-            door.SetPressurize(withoutOxygen);
         }
     }
 
