@@ -66,7 +66,7 @@ public class Player : MonoBehaviour
     {
         this.gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         rigidbody2D = GetComponent<Rigidbody2D>();
-        extinguisherParticles = transform.Find("Extinguisher Particles").gameObject.GetComponent<ParticleSystem>();
+        extinguisherParticles = GameObject.Find("Extinguisher Particles").gameObject.GetComponent<ParticleSystem>();
 
         gravityScaleBackup = rigidbody2D.gravityScale;
 
@@ -94,10 +94,6 @@ public class Player : MonoBehaviour
 
             if (inHand == Object.EMPTY)
             {
-                if (ObjectCollectable.tag == null)
-                {
-                    ObjectCollectable.transform.localScale += new Vector3(0.1f, 0.1f, 0.0f);
-                }
 
                 if (other.gameObject.tag == "Extinguisher")
                 {
@@ -107,6 +103,7 @@ public class Player : MonoBehaviour
 
                 if (other.gameObject.tag == "BottleOxygen")
                 {
+
                     ObjectCollectable = other.gameObject;
                 }
 
@@ -117,8 +114,10 @@ public class Player : MonoBehaviour
 
                 if (other.gameObject.tag == "Bed")
                 {
+
                     ObjectCollectable = other.gameObject;
                 }
+
             }
         }
     }
@@ -130,12 +129,11 @@ public class Player : MonoBehaviour
             other.gameObject.GetComponent<Ladder>().ActivateTopPlatform(true);
             ladder = null;
         }
-            
+
         if (inHand == Object.EMPTY)
         {
-            if (other.gameObject.tag == "Extinguisher" || other.gameObject.tag == "BottleOxygen" || other.gameObject.tag == "RepairKit")
+            if (other.gameObject.tag == "Extinguisher" || other.gameObject.tag == "BottleOxygen" || other.gameObject.tag == "RepairKit" || other.gameObject.tag == "Bed")
             {
-                ObjectCollectable.transform.localScale -= new Vector3(0.1f, 0.1f, 0.0f);
                 ObjectCollectable = null;
             }
         }
@@ -162,12 +160,17 @@ public class Player : MonoBehaviour
             isRight = false;
         }
 
+        if (!InAction)
+        {
+            GameObject.Find("Sprite").GetComponent<SpriteRenderer>().flipX = !isRight;
+        }
+
         animator.SetBool("IsRight", isRight);
 
         animator.SetFloat("Running Velocity", Mathf.Abs(rigidbody2D.velocity.x));
         animator.SetFloat("Climbing Velocity", Mathf.Abs(rigidbody2D.velocity.y));
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Fire1"))
         {
             if (inHand == Object.EMPTY)
             {
@@ -211,45 +214,69 @@ public class Player : MonoBehaviour
             }
         }
 
+        float horizontal2 = Input.GetAxis("StickRight_Horizontal");
+        float vertical2 = Input.GetAxis("StickRight_Vertical");
+        //  GameObject.Find("Arms").transform.localRotation = new Quaternion(horizontal2, vertical2, 0.0f, 0.0f);
+        
+        animator.SetFloat("StickRight_Horizontal", horizontal2);
 
-        if (Input.GetKeyDown(KeyCode.E) && !isClimbing)
+        if (this.isRightArm)
         {
-            if (ObjectCollectable.gameObject.tag == "Bed")
-            {
-                IsSleeping = true;
-                GetComponent<Animator>().SetBool("IsSleeping", true);
-                ObjectCollectable.gameObject.GetComponent<BedSystem>().Sleep(true);
-            }
+            vertical2 = -vertical2;
+        }
 
-            if (inHand == Object.EXTINGUISHER)
+        //Debug.Log("Rotation : X " + horizontal2 +", Y " +vertical2) ;
+        float rotZ = Mathf.Atan2(horizontal2, -vertical2) * Mathf.Rad2Deg;
+        GameObject.Find("Joint").transform.localRotation = Quaternion.Euler(0f, 0f, rotZ-90.0f);
+
+
+        if ((Input.GetKeyDown(KeyCode.E) || (Input.GetAxis("Right Trigger") > 0.5f) && Input.GetJoystickNames().Length > 0) && !isClimbing)
+        {
+            if (!InAction)
             {
-                InAction = true;
-                UseExtinguisher(true);
-                TimetoAction = 3.0f;
-            }
-            if (inHand == Object.KIT_REPAIR)
-            {
-                animator.SetBool("IsReparing", true);
-                InAction = true;
-                TimetoAction = 3.0f;
-            }
-            if (inHand == Object.SPACESUIT)
-            {
-                if (CurrentRoom.GetOxygen())
+                if (ObjectCollectable.gameObject.tag == "Bed")
+                {
+                    IsSleeping = true;
+                    GetComponent<Animator>().SetBool("IsSleeping", true);
+                    ObjectCollectable.gameObject.GetComponent<BedSystem>().Sleep(true);
+                }
+                 
+                if (inHand == Object.EXTINGUISHER)
+                {
+                    GameObject.Find("Sprite").GetComponent<SpriteRenderer>().flipX = false;
+                    InAction = true;
+                    UseExtinguisher(true);
+                    TimetoAction = 3.0f;
+                }
+
+                if (inHand == Object.KIT_REPAIR)
                 {
                     animator.SetBool("IsReparing", true);
                     InAction = true;
                     TimetoAction = 3.0f;
                 }
+
+                if (inHand == Object.SPACESUIT)
+                {
+                    if (CurrentRoom.GetOxygen())
+                    {
+                        animator.SetBool("IsReparing", true);
+                        InAction = true;
+                        TimetoAction = 3.0f;
+                    }
+                }
             }
         }
-        if (Input.GetKeyUp(KeyCode.E))
+        if (Input.GetKeyUp(KeyCode.E) || (Input.GetAxis("Right Trigger") < 0.5f && Input.GetJoystickNames().Length > 0))
         {
-            if (ObjectCollectable.gameObject.tag == "Bed")
+            if (ObjectCollectable != null)
             {
-                GetComponent<Animator>().SetBool("IsSleeping", false);
-                ObjectCollectable.gameObject.GetComponent<BedSystem>().Sleep(false);
-                IsSleeping = false;
+                if (ObjectCollectable.gameObject.tag == "Bed")
+                {
+                    GetComponent<Animator>().SetBool("IsSleeping", false);
+                    ObjectCollectable.gameObject.GetComponent<BedSystem>().Sleep(false);
+                    IsSleeping = false;
+                }
             }
 
             if (inHand == Object.EXTINGUISHER)
@@ -279,100 +306,100 @@ public class Player : MonoBehaviour
 
         if (!IsSleeping)
         {
-                if (InAction)
+            if (InAction)
+            {
+                if (CurrentRoom.GetOnFire() || CurrentRoom.GetOxygen())
                 {
-                    if (CurrentRoom.GetOnFire() || CurrentRoom.GetOxygen())
+                    TimetoAction -= Time.deltaTime;
+                    gameManager.GetComponent<GameManager>().AddScore(GameManager.Gain.FIRE_EXTINGUISHED);
+                    if (TimetoAction <= 0.0f)
                     {
-                        TimetoAction -= Time.deltaTime;
-                        gameManager.GetComponent<GameManager>().AddScore(GameManager.Gain.FIRE_EXTINGUISHED);
-                        if (TimetoAction <= 0.0f)
+                        if (inHand == Object.EXTINGUISHER)
                         {
-                            if (inHand == Object.EXTINGUISHER)
-                            {
-                                CurrentRoom.FireExtinction();
-                            }
-
-                            if (inHand == Object.SPACESUIT)
-                            {
-                                CurrentRoom.RoomPluged();
-                            }
-
-                            InAction = false;
+                            CurrentRoom.FireExtinction();
                         }
+
+                        if (inHand == Object.SPACESUIT)
+                        {
+                            CurrentRoom.RoomPluged();
+                        }
+
+                        InAction = false;
                     }
                 }
+            }
 
-                Vector2 fixedMove = move * Time.fixedDeltaTime;
-                int standingOn = IsStandingOn();
+            Vector2 fixedMove = move * Time.fixedDeltaTime;
+            int standingOn = IsStandingOn();
 
-                if (ladder != null)
+            if (ladder != null)
+            {
+                if (fixedMove.y < 0)
                 {
-                    if (fixedMove.y < 0)
+                    if (standingOn == GROUND)
                     {
-                        if (standingOn == GROUND)
-                        {
-                            StopClimbing();
-                        }
-                        else if (standingOn == LADDER)
-                        {
-                            ladder.GetComponent<Ladder>().ActivateTopPlatform(false);
-                            StartClimbing();
-                        }
+                        StopClimbing();
                     }
-                    else if (fixedMove.y > 0 && standingOn != LADDER)
+                    else if (standingOn == LADDER)
                     {
-                        ladder.GetComponent<Ladder>().ActivateTopPlatform(true);
+                        ladder.GetComponent<Ladder>().ActivateTopPlatform(false);
                         StartClimbing();
+                    }
+                }
+                else if (fixedMove.y > 0 && standingOn != LADDER)
+                {
+                    ladder.GetComponent<Ladder>().ActivateTopPlatform(true);
+                    StartClimbing();
+                }
+            }
+            else
+            {
+                StopClimbing();
+            }
+
+            float targetVelocityX = InAction ? 0 : fixedMove.x * 10f;
+            float targetVelocityY = rigidbody2D.velocity.y;
+
+            if (isClimbing)
+            {
+                float playerX = transform.position.x;
+                float ladderX = ladder.transform.position.x;
+                float xDiff = Mathf.Abs(playerX - ladderX);
+
+                if (xDiff > MAX_HORIZONTAL_LADDER_OFFSET)
+                {
+                    if (playerX > ladderX)
+                    {
+                        targetVelocityX = -3;
+                    }
+                    else
+                    {
+                        targetVelocityX = 3;
                     }
                 }
                 else
                 {
-                    StopClimbing();
+                    targetVelocityX = 0;
                 }
+                //speed
+                targetVelocityY = fixedMove.y * 4.5f;
+            }
 
-                float targetVelocityX = InAction ? 0 : fixedMove.x * 10f;
-                float targetVelocityY = rigidbody2D.velocity.y;
+            rigidbody2D.velocity = Vector3.SmoothDamp(
+                rigidbody2D.velocity,
+                new Vector2(targetVelocityX, targetVelocityY),
+                ref dampVelocity,
+                MOVEMENT_SMOTHING
+            );
 
-                if (isClimbing)
-                {
-                    float playerX = transform.position.x;
-                    float ladderX = ladder.transform.position.x;
-                    float xDiff = Mathf.Abs(playerX - ladderX);
-
-                    if (xDiff > MAX_HORIZONTAL_LADDER_OFFSET)
-                    {
-                        if (playerX > ladderX)
-                        {
-                            targetVelocityX = -3;
-                        }
-                        else
-                        {
-                            targetVelocityX = 3;
-                        }
-                    }
-                    else
-                    {
-                        targetVelocityX = 0;
-                    }
-                    //speed
-                    targetVelocityY = fixedMove.y * 4.5f;
-                }
-
-                rigidbody2D.velocity = Vector3.SmoothDamp(
-                    rigidbody2D.velocity,
-                    new Vector2(targetVelocityX, targetVelocityY),
-                    ref dampVelocity,
-                    MOVEMENT_SMOTHING
-                );
-
-                if (
-                    !isClimbing &&
-                    (move.x > 0 && orientation != RIGHT) ||
-                    (move.x < 0 && orientation != LEFT)
-                )
-                {
-                    Flip();
-                }
+            if (
+                !isClimbing &&
+                (move.x > 0 && orientation != RIGHT) ||
+                (move.x < 0 && orientation != LEFT)
+            )
+            {
+                Flip();
+            }
         }
     }
 
@@ -477,8 +504,8 @@ public class Player : MonoBehaviour
     {
         if (!IsDead())
         {
-            hp  -= damage;
-            
+            hp -= damage;
+
             if (IsDead())
             {
                 Kill();
@@ -497,7 +524,8 @@ public class Player : MonoBehaviour
     {
         this.hp = hp;
 
-        if (this.hp > maxHp) {
+        if (this.hp > maxHp)
+        {
             this.hp = maxHp;
         }
 
@@ -507,5 +535,15 @@ public class Player : MonoBehaviour
     public int GetHP()
     {
         return hp;
+    }
+
+    private bool isRightArm = false;
+    public void SetArm(int state)
+    {
+        if(state == 1)
+            this.isRightArm = false;
+
+        if (state == 0)
+            this.isRightArm = true;
     }
 }

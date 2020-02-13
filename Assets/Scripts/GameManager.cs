@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
 
     private Text HealthText;
     private Text ScoreText;
+    private bool isDeath = false;
 
     private RoomSystem[] rooms;
 
@@ -62,6 +63,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        DontDestroyOnLoad(this);
         rooms = Rooms.GetComponentsInChildren<RoomSystem>();
 
         HealthText = GameObject.Find("HealthText").GetComponent<Text>();
@@ -71,26 +73,35 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        int currentLife = 0;
-        foreach (var room in rooms)
+        if (!isDeath)
         {
-            currentLife += room.GetHealth();
-        }
+            int currentLife = 0;
+            foreach (var room in rooms)
+            {
+                currentLife += room.GetHealth();
+            }
 
-        HealthText.text = currentLife + " / " +  30 * rooms.Length;
+            HealthText.text = currentLife + " / " + 30 * rooms.Length;
 
-        if (currentLife <= 0)
-        {
-            SceneManager.LoadScene(2);
-            GameObject.Find("AudioManager").GetComponent<MotherFuckingAudioManager>()
-                .PlayMusic(MotherFuckingAudioManager.MusicList.OVER);
+            if (currentLife <= 0)
+            {
+                isDeath = true;
+                Destroy(this.gameObject.GetComponent<RoomSystem>());
+                GameObject.Find("AudioManager").GetComponent<MotherFuckingAudioManager>()
+                    .PlayMusic(MotherFuckingAudioManager.MusicList.OVER);
+                SceneManager.LoadScene(2);
+              
+            }
         }
+    }
+
+    public bool GetIsDeath()
+    {
+        return this.isDeath;
     }
 
     public void AddScore(Gain action)
     {
-       
-        
         switch (action)
         {
             case Gain.ASTEROID_DODGED:
@@ -169,5 +180,10 @@ public class GameManager : MonoBehaviour
             DepressurizeRoom();
         }
 
+    }
+
+    public float GetScore()
+    {
+        return this.Score;
     }
 }

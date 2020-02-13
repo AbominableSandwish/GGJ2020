@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class RoomSystem : MonoBehaviour
 {
+    private GameManager gameManager;
     [SerializeField] private List<DoorSystem> doors;
     // Start is called before the first frame update
     private bool withoutOxygen = false;
@@ -19,6 +20,7 @@ public class RoomSystem : MonoBehaviour
     float LevelFire = 0.0f;
     void Start()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         dangers = new List<GameObject>();
     }
 
