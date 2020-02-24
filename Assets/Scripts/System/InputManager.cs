@@ -9,9 +9,11 @@ public class InputManager : MonoBehaviour
 
 
     public int Xbox_One_Controller = 0;
-    private int PS4_Controller = 0;
+    public int PS4_Controller = 0;
     public int GamePad_Controller = 0;
+    public int Nintendo_ProController = 0;
     public int counterGamePad = 0;
+    
 
     private string[] gamePadDetected;
 
@@ -34,6 +36,16 @@ public class InputManager : MonoBehaviour
             DOWN
         }
 
+        public enum typeGamePad
+        {
+            CONTROLLER_GAME_PAD,
+            CONTROLLER_XBOX,
+            CONTROLLER_PS4,
+            PROCONTROLLER_NINTENDO
+        }
+
+        private typeGamePad type;
+
         public enum TriggerCode
         {
             RIGHT,
@@ -52,9 +64,10 @@ public class InputManager : MonoBehaviour
             VERTICAL
         }
 
-        public GamePad(int id)
+        public GamePad(int id, typeGamePad type)
         {
             this.id = id;
+            this.type = type;
         }
 
         public void SetName(string name)
@@ -176,27 +189,51 @@ public class InputManager : MonoBehaviour
     void Update()
     {
         string[] names = Input.GetJoystickNames();
-        Debug.Log("Counter joystick: "+ names.Length);
 
-        foreach (GamePad gamePad in gamePads)
-        {
-            print(gamePad.name);
-        }
+
+        bool gamepadIsDeteted = false ;
 
         for (int x = 0; x < names.Length; x++)
         {
-            // print(names[x].Length);
-            if (names[x].Length > 0)
+        
+            //if(Ga)
+            // print(names[x].Length 
+            if (names[x].Length > 0 ) 
             {
+                gamepadIsDeteted = true;
+                print(names[x].Length);
                 if (gamePadDetected[x] != names[x])
                 {
-                    print(names[x] + " is connected");
+                    string msg = "InputManager: " + names[x] + " is connected";
                     if (names[x].Length == 19)
                     {
                        
                         PS4_Controller = 1;
                         counterGamePad++;
                         gamePadDetected[x] = names[x];
+                    }
+
+                    if (names[x].Length == 14)
+                    {
+
+                        Nintendo_ProController = 1;
+                        counterGamePad++;
+                        gamePadDetected[x] = names[x];
+                        GamePad newGamePad = GetGamePadFree();
+                        newGamePad.SetName(names[x]);
+                        nameGamePads[newGamePad.id] = newGamePad.name;
+                        gamePads.Add(newGamePad);
+                    }
+                    if (names[x].Length == 16)
+                    {
+
+                        Nintendo_ProController = 1;
+                        counterGamePad++;
+                        gamePadDetected[x] = names[x];
+                        GamePad newGamePad = GetGamePadFree();
+                        newGamePad.SetName(names[x]);
+                        nameGamePads[newGamePad.id] = newGamePad.name;
+                        gamePads.Add(newGamePad);
                     }
 
                     if (names[x].Length == 20)
@@ -220,7 +257,9 @@ public class InputManager : MonoBehaviour
                         newGamePad.SetName(names[x]);
                         nameGamePads[newGamePad.id] = newGamePad.name;
                         gamePads.Add(newGamePad);
+                       
                     }
+                    print(msg);
                 }
 
 
@@ -228,6 +267,7 @@ public class InputManager : MonoBehaviour
             }
             else
             {
+               
                 if (gamePadDetected[x] != null)
                 {
                     print(gamePadDetected[x] + " is disconnected");
@@ -276,10 +316,43 @@ public class InputManager : MonoBehaviour
                         counterGamePad--;
                         return;
                     }
+
+                    if (gamePadDetected[x].Length == 14 || gamePadDetected[x].Length == 16)
+                    {
+                        //set a controller bool to true
+                        Nintendo_ProController = 0;
+                        gamePadDetected[x] = null;
+
+                        foreach (var gamePad in gamePads)
+                        {
+                            if (gamePad.id == x)
+                            {
+
+                                nameGamePads[gamePad.id] = "FUCK";
+                                gamePads.Remove(gamePad);
+                                break;
+                            }
+                        }
+
+                        counterGamePad--;
+                        return;
+                    }
                 }
             }
         }
 
+
+        if (!gamepadIsDeteted)
+        {
+            if (gamePads.Count != 0)
+            {
+                gamePads.Clear();
+                nameGamePads[0] = "FUCK";
+                nameGamePads[1] = "FUCK";
+                nameGamePads[2] = "FUCK";
+                nameGamePads[3] = "FUCK";
+            }
+        }
 
 
         if (Xbox_One_Controller == 1)
