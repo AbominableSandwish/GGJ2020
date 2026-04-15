@@ -12,4 +12,4 @@ Ce projet a été développé en 48 heures dans le cadre de la Global Game Jam 2
 
 ## 🎥 Aperçu
 
-![Gameplay](docs/BannerSpacePanic.gif)
+![Gameplay](Docs/BannerSpacePanic.gif)
